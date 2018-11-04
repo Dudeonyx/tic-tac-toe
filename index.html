@@ -5,10 +5,32 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Tic Tac Toe</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="styles/bootstrap.css" />
   <link rel="stylesheet" type="text/css" media="screen" href="styles/main.css" />
-  <script src="js/ticTacToe.js"></script>
+  <script src="js/jquery-3.3.1.slim.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
-  
+<body class="d-flex flex-column justify-content-center">
+  <header class="container">
+    <div class="jumbotron text-center"> 
+      <h1 class="d-inline-block">Tic Tac Toe - 3 in a row</h1>
+    </div>
+  </header>
+  <div class="outer-container container">
+    <div class="row border-primary rounded justify-content-center">
+      <!-- <div class="col-1"></div> -->
+      <div class="inner-container col-10 col-lg-6 d-flex flex-wrap align-items-stretch justify-content-center" id="board">
+        
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <p>
+        Current Mark: <span id="current-mark"></span>
+      </p> 
+    </div>
+  </div>
 </body>
+<script src="js/ticTacToe.js"></script>
 </html>

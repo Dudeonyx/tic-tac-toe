@@ -1,0 +1,16 @@
+body{
+  min-height: 100vh;
+}
+.outer-container {
+  height: 50vh;
+}
+
+.inner-container {
+  
+  min-height: 50vh;
+}
+
+.board-row,.cell{
+  min-height: 2rem;
+  
+}

@@ -1,3 +1,20 @@
+// window.addEventListener('load', () => {
+const myDOM = (() => {
+  function $(element = document) {
+    return selector => element.querySelector(selector);
+  }
+  function $All(element = document) {
+    return selector => element.querySelectorAll(selector);
+  }
+  function $Create(element) {
+    return document.createElement(element);
+  }
+  return {
+    $,
+    $All,
+    $Create,
+  };
+})();
 function createPlayers(mark = 'x') {
   const otherMark = mark === 'x' ? 'o' : 'x';
   return Object.freeze({
@@ -12,6 +29,10 @@ function createPlayers(mark = 'x') {
   });
 }
 let player = createPlayers();
+let mark = 'x';
+function toggleMark() {
+  mark = mark === 'x' ? 'o' : 'x';
+}
 
 const gameBoard = (() => {
   const defaultBoardSize = 3;
@@ -32,6 +53,7 @@ const gameBoard = (() => {
 
   function reset() {
     board = createBoard(defaultBoardSize);
+    mark = 'x';
     return board;
   }
   function checkForWinner() {
@@ -112,6 +134,47 @@ const handler = (() => Object.freeze({
 
 
 const displayController = (() => {
-  
+  const BOARD = myDOM.$()('#board');
+  const currentMark = myDOM.$()('#current-mark');
+  currentMark.textContent = mark;
+  function updateDOMBoard() {
+    currentMark.textContent = mark;
+    const cells = myDOM.$All()('[data-row]');
+    cells.forEach((cell) => {
+      const { row, column } = cell.dataset;
+      // console.log({cell});
+      const text = cell.firstChild;
+      text.textContent = gameBoard.getBoard()[+row][+column];
+    });
+  }
+  function createDOMBoard(newBoardSize = 3) {
+    BOARD.innerHTML = '';
+    for (let i = 0; i < newBoardSize; i += 1) {
+      const row = BOARD.appendChild(myDOM.$Create('div'));
+      row.classList.add('col-12', 'row', 'board-row');
+      for (let j = 0; j < newBoardSize; j += 1) {
+        const cell = row.appendChild(myDOM.$Create('div'));
+        const cellText = cell.appendChild(myDOM.$Create('p'));
+        cell.classList.add('col-4', 'd-flex', 'border', 'cell', 'text-center', 'align-items-center', 'justify-content-center');
+        cellText.classList.add('col', 'm-0');
+        cell.setAttribute('data-row', `${i}`);
+        cell.setAttribute('data-column', `${j}`);
+        cellText.textContent = gameBoard.getBoard()[i][j];
+        cell.addEventListener('click', () => { // eslint-disable-line no-loop-func
+          const setterObj = { mark, row: i, column: j };
+          const setresponse = gameBoard.setBoard(setterObj);
+          const reponse = handler[setresponse]();
+          toggleMark();
+          updateDOMBoard();
+          // createDOMBoard();
+        });
+      }
+    }
+  }
+  return {
+    createDOMBoard,
+  };
 })();
 
+displayController.createDOMBoard();
+// });
