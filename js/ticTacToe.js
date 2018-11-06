@@ -115,59 +115,79 @@ window.addEventListener('load', () => {
       text.textContent = gameBoard.getBoard()[+row][+column];
     }
 
-    const handler = (() => Object.freeze({
-      x(...args) {
-      // console.log(cellText);
-        updateDOMBoard(...args);
-        const oldBoard = gameBoard.getBoard();
-        gameBoard.reset();
-        removeEventListens();
-        myDOM.$()('#winner').textContent = `Congratulations: ${player.x.name} has won!!!`;
-        return {
-          winner: player.x.name,
-          oldBoard,
-        };
-      },
-      o(...args) {
-      // console.log(cellText);
-        updateDOMBoard(...args);
-        const oldBoard = gameBoard.getBoard();
-        gameBoard.reset();
-        removeEventListens();
-        myDOM.$()('#winner').textContent = `Congratulations: ${player.o.name} has won!!!`;
-        return {
-          winner: player.o.name,
-          oldBoard,
-        };
-      },
-      'No Winner Yet!': function noWinnerYet(...args) {
-        return this[gameBoard.checkBoardCompletion().status](...args);
-      },
-      'Invalid Move!!!': () => false,
-      'Continue!': (...args) => {
-        toggleMark();
-        updateDOMBoard(...args);
-      },
-      'Game Over!': (...args) => {
-        toggleMark();
-        updateDOMBoard(...args);
-        removeEventListens();
-        gameBoard.reset();
-        return 'Game Over!';
-      },
-    }))();
-    function handleClicks(evt) {
-      const { cellText, row, column } = evt.target.myParams;
-      const setterObj = { newMark: mark, row, column };
-      const setresponse = gameBoard.setBoard(setterObj);
-      handler[setresponse](cellText, row, column);
-    }
-    function removeEventListens() {
-      const cells = myDOM.$All()('[data-row]');
-      cells.forEach((cell) => {
-        cell.removeEventListener('click', handleClicks);
+    const handler = (() => {
+      const self = Object.freeze({
+        x(...args) {
+          // console.log(cellText);
+          args && updateDOMBoard(...args);
+          const oldBoard = gameBoard.getBoard();
+          gameBoard.reset();
+          self.removeEventListens();
+          myDOM.$()('#winner').textContent = `Congratulations: ${player.x.name} has won!!!`;
+          return {
+            winner: player.x.name,
+            oldBoard,
+          };
+        },
+        o(...args) {
+          // console.log(cellText);
+          (args) && (updateDOMBoard(...args));
+          const oldBoard = gameBoard.getBoard();
+          gameBoard.reset();
+          self.removeEventListens();
+          myDOM.$()('#winner').textContent = `Congratulations: ${player.o.name} has won!!!`;
+          return {
+            winner: player.o.name,
+            oldBoard,
+          };
+        },
+        'No Winner Yet!': function noWinnerYet(...args) {
+          return self[gameBoard.checkBoardCompletion().status](...args);
+        },
+        'Invalid Move!!!': () => false,
+        'Continue!': (...args) => {
+          toggleMark();
+          updateDOMBoard(...args);
+          setTimeout(self.autoTurn, 800);
+        },
+        autoTurn() {
+          if (player[mark].name === 'Player Two') {
+            const { blankSpots = [] } = gameBoard.checkBoardCompletion();
+            const { length } = blankSpots;
+            const [row, column] = blankSpots[Math.floor(Math.random() * length)];
+            const setterObj = { newMark: mark, row, column };
+            const setresponse = gameBoard.setBoard(setterObj);
+            const cellText = myDOM.$(BOARD)(`[data-row='${row}'][data-column='${column}']>p`);
+            self[setresponse](cellText, row, column);
+          }
+        },
+        'Game Over!': (...args) => {
+          toggleMark();
+          updateDOMBoard(...args);
+          self.removeEventListens();
+          gameBoard.reset();
+          myDOM.$()('#winner').textContent = 'GAME OVER!';
+          return 'Game Over!';
+        },
+        clicks(evt) {
+          if (mark === 'x') {
+            const { cellText, row, column } = evt.target.myParams;
+            const setterObj = { newMark: mark, row, column };
+            const setresponse = gameBoard.setBoard(setterObj);
+            self[setresponse](cellText, row, column);
+          }
+        },
+        removeEventListens() {
+          const cells = myDOM.$All()('[data-row]');
+          cells.forEach((cell) => {
+            cell.removeEventListener('click', self.clicks);
+          });
+        },
       });
-    }
+      return self;
+    })();
+    console.log(handler);
+
     function createDOMBoard(newBoardSize = 3) {
       BOARD.innerHTML = '';
       myDOM.$()('#winner').textContent = '';
@@ -178,19 +198,12 @@ window.addEventListener('load', () => {
           const cell = row.appendChild(myDOM.$Create('div'));
           const cellText = cell.appendChild(myDOM.$Create('p'));
           cell.classList.add('col-4', 'd-flex', 'border', 'cell', 'text-center', 'align-items-center', 'justify-content-center');
-          cellText.classList.add('col', 'm-0', 'text-uppercase');
+          cellText.classList.add('col', 'm-0', 'text-uppercase', 'display-4');
           cell.setAttribute('data-row', `${i}`);
           cell.setAttribute('data-column', `${j}`);
           cellText.textContent = gameBoard.getBoard()[i][j];
           cell.myParams = { cellText, row: i, column: j };
-          cell.addEventListener('click', handleClicks);
-        /* () => { // eslint-disable-line no-loop-func
-          const setterObj = { newMark: mark, row: i, column: j };
-          const setresponse = gameBoard.setBoard(setterObj);
-          const handlerResponse = handler[setresponse](cellText, i, j);
-          // createDOMBoard();
-        } );// */
-        // console.log({ cell });
+          cell.addEventListener('click', handler.clicks);
         }
       }
     }
