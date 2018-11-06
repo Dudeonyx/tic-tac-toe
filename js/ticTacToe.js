@@ -1,4 +1,78 @@
 window.addEventListener('load', () => {
+  const myObject = (() => {
+    function copy(o, flag) {
+      const output = Array.isArray(o) ? [] : {};
+      Object.keys(o).forEach((key) => {
+        const v = o[key];
+        output[key] = typeof v === 'object' && flag === true ? copy(v, true) : v;
+      });
+      return output;
+    }
+    function merge(objectA = {}, ...objects) {
+      let flag;
+      if (typeof objects[objects.length - 1] === 'boolean') {
+        flag = objects.pop();
+      }
+      const newObject = Array.isArray(objectA) ? [] : Object.create(Object.getPrototypeOf(objectA));
+      const propsA = Object.getOwnPropertyNames(objectA);
+      propsA.forEach((prop) => {
+        // if (Array.isArray(objectA) && prop === 'length') return;
+        const desc = Object.getOwnPropertyDescriptor(objectA, prop);
+        if (flag === true && desc.value !== null && typeof desc.value === 'object') {
+          desc.value = merge(desc.value, true);
+        }
+        Object.defineProperty(newObject, prop, desc);
+      });
+      objects.forEach((object) => {
+        const props = Object.getOwnPropertyNames(object);
+        props.forEach((prop) => {
+          const desc = Object.getOwnPropertyDescriptor(object, prop);
+          if (flag === true && desc.value !== null && typeof desc.value === 'object') {
+            desc.value = merge(desc.value, true);
+          }
+          if (Object.hasOwnProperty.call(newObject, prop)) {
+            if (!newObject.duplicateProperties) {
+              newObject.duplicateProperties = {};
+            }
+            Object.defineProperty(newObject.duplicateProperties, prop, desc);
+          } else {
+            Object.defineProperty(newObject, prop, desc);
+          }
+        });
+      });
+      return newObject;
+    }
+    function setConstructor(constructor) {
+      return (o, allMethodsPrototypal = false) => {
+        const proto1 = Object.create(Object.getPrototypeOf(o));
+        proto1.constructor = constructor;
+        if (allMethodsPrototypal === true) {
+          return Object.create(merge(proto1, o));
+        }
+        const proto2 = Object.create(proto1);
+        return merge(proto2, o);
+      };
+    }
+    function rClone(o, flag) {
+      const clone = Array.isArray(o) ? [] : {};
+      const props = Object.getOwnPropertyNames(o);
+      props.forEach((prop) => {
+        const desc = Object.getOwnPropertyDescriptor(o, prop);
+        if (flag === true && desc.value !== null && typeof desc.value === 'object') {
+          desc.value = rClone(desc.value, true);
+        }
+        Object.defineProperty(clone, prop, desc);
+      });
+      return clone;
+    }
+    return Object.freeze({
+      merge,
+      setConstructor,
+      rClone,
+      copy,
+    });
+  })();
+  
   const myDOM = (() => {
     function $(element = document) {
       return selector => element.querySelector(selector);
