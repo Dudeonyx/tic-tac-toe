@@ -9,8 +9,24 @@ body{
   
   min-height: 50vh;
 }
-
+.board-row{
+  /* position: relative; */
+}
 .board-row,.cell{
-  min-height: 5.5rem;
+  box-sizing: border-box;
+  /* min-height: 5.5rem; */
+  /* position: relative; */
   
+}
+.cell::before {
+  content: '';
+  /* position: absolute; */
+  padding-bottom: 125%;
+  width: 0;
+}
+.cell::after {
+  content: '';
+  /* position: absolute; */
+  padding-bottom: 125%;
+  width: 0;
 }
