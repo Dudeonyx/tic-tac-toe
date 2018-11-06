@@ -11,6 +11,6 @@ body{
 }
 
 .board-row,.cell{
-  min-height: 2rem;
+  min-height: 5.5rem;
   
 }
