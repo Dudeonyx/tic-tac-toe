@@ -14,9 +14,8 @@ body{
 }
 .board-row,.cell{
   box-sizing: border-box;
-  /* min-height: 5.5rem; */
+  min-width: 2rem;
   /* position: relative; */
-  
 }
 .cell::before {
   content: '';
