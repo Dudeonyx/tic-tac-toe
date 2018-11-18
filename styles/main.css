@@ -1,0 +1,31 @@
+body{
+  min-height: 100vh;
+}
+.outer-container {
+  height: 50vh;
+}
+
+.inner-container {
+  
+  min-height: 50vh;
+}
+.board-row{
+  /* position: relative; */
+}
+.board-row,.cell{
+  box-sizing: border-box;
+  min-width: 2rem;
+  /* position: relative; */
+}
+.cell::before {
+  content: '';
+  /* position: absolute; */
+  padding-bottom: 125%;
+  width: 0;
+}
+.cell::after {
+  content: '';
+  /* position: absolute; */
+  padding-bottom: 125%;
+  width: 0;
+}
